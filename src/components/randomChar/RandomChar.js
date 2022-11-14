@@ -1,116 +1,85 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 //Core
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 
 //Components
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
 //Services
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 
 //Styles
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
-class RandomChar extends Component {
+const RandomChar = () => {
 
-    state = {
-        char: {},
-        loading: true,
-        error: false
-    }
+    const [char, setChar] = useState({});
+    const { loading, error, getCharacter, clearError } = useMarvelService();
 
-    componentDidMount() {
-        this.updateChar();
-    }
+    useEffect(() => {
+        updateChar()
+    }, [])
 
-    marvelService = new MarvelService();
-
-    onCharLoaded = (char) => {
-        this.setState({
-            char,
-            loading: false,
-        });
-    };
-
-    updateChar = () => {
+    const updateChar = () => {
+        clearError();
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-        this.marvelService
-            .getCharacter(id)
-            .then(this.onCharLoaded)
-            .catch(this.onError)
+        getCharacter(id)
+            .then(onCharLoaded)
     };
 
-    onTryRandom = () => {
-        this.onCharLoading()
-        this.updateChar();
-    }
-
-    onError = () => {
-        this.setState({
-            loading: false,
-            error: true
-        });
+    const onCharLoaded = (char) => {
+        setChar(char);
     };
 
-    onCharLoading = () => {
-        this.setState({
-            loading: true,
-        })
-    }
+    const onTryRandom = () => {
+        updateChar();
+    };
 
+    const errorMessage = error ? <ErrorMessage /> : null;
+    const spinner = loading ? <Spinner /> : null;
+    const content = !(loading || error) ? <View char={char} /> : null;
 
-    render() {
-
-        const { char, loading, error } = this.state;
-
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error) ? <View char={char}/> : null;
-
-        return (
-            <div className="randomchar">
-                {errorMessage}
-                {spinner}
-                {content}
-                <div className="randomchar__static">
-                    <p className="randomchar__title">
-                        Random character for today!<br />
-                        Do you want to get to know him better?
-                    </p>
-                    <p className="randomchar__title">
-                        Or choose another one
-                    </p>
-                    <button className="button button__main">
-                        <div className="inner" onClick={this.onTryRandom}>try it</div>
-                    </button>
-                    <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
-                </div>
+    return (
+        <div className="randomchar">
+            {errorMessage}
+            {spinner}
+            {content}
+            <div className="randomchar__static">
+                <p className="randomchar__title">
+                    Random character for today!<br />
+                    Do you want to get to know him better?
+                </p>
+                <p className="randomchar__title">
+                    Or choose another one
+                </p>
+                <button className="button button__main">
+                    <div className="inner" onClick={onTryRandom}>try it</div>
+                </button>
+                <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
             </div>
-        )
-    }
+        </div>
+    )
 }
 
 const View = ({ char }) => {
 
     const { name, description, thumbnail, homepage, wiki } = char;
 
-    let fixedDescr;
+    let imgStyle = { 'objectFit': 'cover' };
+    if (thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'
+        || thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/f/60/4c002e0305708.gif') {
+        imgStyle = { 'objectFit': 'unset' };
+    };
 
-    if (description.length > 1 && description.length <= 226) {
-        fixedDescr = description;
-    } else if (description.length > 226) {
-        fixedDescr = description.slice(0, 226) + '...';
-    } else {
-        fixedDescr = 'Oops.. there is no data :(';
-    }
 
     return (<div className="randomchar__block">
-        {/* <img src={thumbnail} alt="Random character" className="randomchar__img" /> */}
-        {fixedImage(thumbnail)}
+        <img src={thumbnail} style={imgStyle} className="randomchar__img" alt="super hero" />
         <div className="randomchar__info">
             <p className="randomchar__name">{name}</p>
-            <p className="randomchar__descr">{fixedDescr}</p>
+            <p className="randomchar__descr">{description}</p>
             <div className="randomchar__btns">
                 <a
                     href={homepage}
@@ -130,14 +99,5 @@ const View = ({ char }) => {
         </div>
     </div>);
 };
-
-const fixedImage = (path) => {
-
-    if (path.slice(-17) === 'not_available.jpg') {
-        return  <img src={path} style={{objectFit: 'contain'}} className="randomchar__img" alt="super hero" />
-    } else {
-        return  <img src={path} className="randomchar__img" alt="super hero" />
-    } 
-}
 
 export default RandomChar;
