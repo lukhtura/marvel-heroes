@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 //Core
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 //Components
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -35,14 +36,14 @@ const ComicsList = () => {
 
     const renderList = (data) => {
         const items = data.map((item, i) => {
-            const { title, price, thumbnail, url } = item;
+            const { id, title, price, thumbnail} = item;
             return (
                 <li key={i} className="comics__item">
-                    <a href={url}>
+                    <Link to={`/comics/${id}`}>
                         <img src={thumbnail} alt="x-men" className="comics__item-img" />
                         <div className="comics__item-name">{title}</div>
                         <div className="comics__item-price">{price}</div>
-                    </a>
+                    </Link>
                 </li>
             );
         });

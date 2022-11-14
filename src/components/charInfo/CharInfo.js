@@ -2,6 +2,7 @@
 //Core
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { Link } from 'react-router-dom';
 
 //Service
 import useMarvelService from '../../services/MarvelService';
@@ -39,6 +40,7 @@ const CharInfo = (props) => {
 
     const onCharLoaded = (char) => {
         setChar(char);
+        console.log(char.comics)
     };
 
 
@@ -98,9 +100,9 @@ const View = ({ char }) => {
                 {comics.length > 0 ? null : 'sorry, there is no data'}
                 {comics.slice(0, 10).map((item, i) => {
                     return (
-                        <li key={i} className="char__comics-item">
+                        <Link to={item.resourceURI.match(/comics.\d+/)[0]} key={i} className="char__comics-item">
                             {item.name}
-                        </li>
+                        </Link>
                     );
                 })}
             </ul>

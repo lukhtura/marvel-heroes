@@ -24,7 +24,12 @@ const useMarvelService = () => {
     const getAllComics = async (offset = _baseOffset) => {
         const res = await request(`${_apiBase}comics?limit=8&offset=${offset}&${_apiKey}`);
         return res.data.results.map(_transformComics)
-    }
+    };
+
+    const getComic = async (id) => {
+        const res = await request(`${_apiBase}comics/${id}?limit=8&offset=210&${_apiKey}`);
+        return _transformComics(res.data.results[0])
+    };
 
     const _transformCharacter = (char) => {
 
@@ -45,21 +50,23 @@ const useMarvelService = () => {
             thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension, 
             homepage: char.urls[0].url,
             wiki: char.urls[1].url,
-            comics: char.comics.items
+            comics: char.comics.items,
         };
     };
 
-    const _transformComics = (item) => {
+    const _transformComics = (comic) => {
         return {
-            // id: item.id,
-            title: item.title,
-            price: item.prices[0].price === 0 ? 'not available' : item.prices[0].price,
-            thumbnail: item.thumbnail.path + '.' + item.thumbnail.extension, 
-            url: item.urls[0].url
+            id: comic.id,
+            title: comic.title,
+            description: comic.description ? comic.description : 'Oops.. there is no data :(' ,
+            pageCount: comic.pageCount ? `${comic.pageCount} p.` : 'No information about the number of pages',
+            price: comic.prices[0].price === 0 ? 'not available' : '$' + comic.prices[0].price,
+            thumbnail: comic.thumbnail.path + '.' + comic.thumbnail.extension, 
+            language: comic.textObjects[1] ? comic.textObjects[1] : 'en-us'
         };
     };
 
-    return {loading, error, getAllCharacters, getCharacter, clearError, getAllComics}
+    return {loading, error, getAllCharacters, getCharacter, clearError, getAllComics, getComic}
 };
 
 export default useMarvelService;
