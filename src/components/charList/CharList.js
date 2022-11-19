@@ -10,8 +10,9 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 //Services
 import useMarvelService from '../../services/MarvelService';
 
-//Styles
+//StylesAndAnimations
 import './charList.scss';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 const CharList = (props) => {
 
